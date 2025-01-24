@@ -153,6 +153,12 @@ Description::Description(const string &sdp, Type type, Role role)
 				// takes precedence.
 				if (!mIcePwd || index == 0) // media-level for first media overrides session-level
 					mIcePwd = value;
+			} else if (key == "ice-pacing") {
+				// RFC: 8839: The "ice-pacing" is a session-level attribute that indicates the desired 
+				// connectivity-check pacing (Ta interval), in milliseconds, that the sender wishes to use.
+				// If absent in an offer or answer, the default value of the attribute is 50 ms, which 
+				// is the recommended value specified in [RFC8445].
+				mIcePacing = value;
 			} else if (key == "ice-options") {
 				// RFC 8839: The "ice-options" attribute is a session-level and media-level
 				// attribute.
@@ -206,6 +212,8 @@ optional<string> Description::iceUfrag() const { return mIceUfrag; }
 std::vector<string> Description::iceOptions() const { return mIceOptions; }
 
 optional<string> Description::icePwd() const { return mIcePwd; }
+
+optional<string> Description::icePacing() const { return mIcePacing; }
 
 optional<CertificateFingerprint> Description::fingerprint() const { return mFingerprint; }
 
@@ -314,6 +322,8 @@ string Description::generateSdp(string_view eol) const {
 		sdp << "a=ice-ufrag:" << *mIceUfrag << eol;
 	if (mIcePwd)
 		sdp << "a=ice-pwd:" << *mIcePwd << eol;
+	if (mIcePacing)
+		sdp << "a=ice-pacing:" << *mIcePacing << eol;
 	if (!mIceOptions.empty())
 		sdp << "a=ice-options:" << utils::implode(mIceOptions, ',') << eol;
 	if (mFingerprint)
@@ -379,6 +389,8 @@ string Description::generateApplicationSdp(string_view eol) const {
 		sdp << "a=ice-ufrag:" << *mIceUfrag << eol;
 	if (mIcePwd)
 		sdp << "a=ice-pwd:" << *mIcePwd << eol;
+	if (mIcePacing)
+		sdp << "a=ice-pacing:" << *mIcePwd << eol;
 	if (!mIceOptions.empty())
 		sdp << "a=ice-options:" << utils::implode(mIceOptions, ',') << eol;
 	if (mFingerprint)
